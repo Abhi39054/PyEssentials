@@ -1,6 +1,7 @@
 # tests/test_generators.py
 import time
-from pyessentials.generators import generate_random_int
+from pyessentials.generators import generate_random_int, generate_secret_key
+
 
 # Test to ensure the generated integer is within the specified range
 def test_generate_random_int_within_range():
@@ -40,3 +41,19 @@ def test_generate_random_int_large_range():
     result = generate_random_int(min_value, max_value)
     assert min_value <= result <= max_value, f"Result {result} is not within range {min_value}-{max_value}"
 
+# Test for generate secret key
+def test_generate_secret_key_length():
+    length = 16
+    result = generate_secret_key(length)
+    assert len(result) == length * 2, f"Secret key length {len(result)} does not match expected length {length * 2}"
+
+def test_generate_secret_key_different_calls():
+    result1 = generate_secret_key()
+    result2 = generate_secret_key()
+    assert result1 != result2, "Multiple calls to generate_secret_key produced the same result"
+
+def test_generate_secret_key_default_length():
+    default_length = 32
+    result = generate_secret_key()
+    assert len(result) == default_length * 2 , f"Default secret key length {len(result)} does not match expected length {default_length * 2}"
+    

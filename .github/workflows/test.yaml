@@ -95,3 +95,30 @@ jobs:
         if: steps.publish.outputs.skipped == 'true'
         run: |
           echo "::warning ::Package version already exists on TestPyPI — upload skipped."
+
+  pypi_publish:
+    name: 🚀 Publish to PyPI (Requires Approval)
+    runs-on: ubuntu-latest
+    needs: [pypi_test_publish]
+
+    environment:
+      name: pypi-prod   # 🔐 This enforces manual approval
+      url: https://pypi.org/project/pyessential/
+
+    # Only run if TestPyPI upload succeeded AND commit contains the keyword
+    if: success() && contains(github.event.head_commit.message, 'Pypi publish')
+
+    steps:
+      - name: ⬇️ Download Distribution Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distribution-files
+          path: dist/
+
+      - name: 🔐 Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true

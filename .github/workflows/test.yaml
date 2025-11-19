@@ -82,9 +82,16 @@ jobs:
           path: dist/
 
       - name: 🔐 Publish to TestPyPI
+        id: publish
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
           user: __token__ 
           password: ${{ secrets.TESTPYPI_API_TOKEN }}
+          skip-existing: true
+
+      - name: ⚠️ Warn if version already exists
+        if: steps.publish.outputs.skipped == 'true'
+        run: |
+          echo "::warning ::Package version already exists on TestPyPI — upload skipped."
